@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:here_sdk/animation.dart';
@@ -11,7 +12,9 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:sarrafak/presentation/ui/screens/splash_screen.dart';
 
 import '../../../app_constants.dart';
+import '../../../data/models/atm.dart';
 import '../../../helpers/page.dart';
+import '../widgets/day_night_reveal.dart';
 import '../widgets/my_location.dart';
 
 class HereHomePage extends ExamplePage {
@@ -42,64 +45,96 @@ class _HereHomeState extends State<HereHome> {
 
   bool _myLocationEnabled = false;
 
+  bool _isSatellite = true;
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Stack(children: [
-        SizedBox(
-          height: screenHeight,
-          width: screenWidth,
-          child: MapboxMap(
-            styleString: MapboxStyles.SATELLITE,
-            /*isLight
+      body: DayNightReveal(child: (isLight) {
+        return Stack(children: [
+          SizedBox(
+            height: screenHeight,
+            width: screenWidth,
+            child: MapboxMap(
+              styleString: _isSatellite
+                  ? MapboxStyles.SATELLITE
+                  : isLight
                       ? AppConstants.mapBoxStyleId
-                      : AppConstants.mapBoxDarkStyleId,*/
-            accessToken: AppConstants.mapBoxAccessToken,
-            onMapCreated: _onMapboxMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: LatLng(AppConstants.kInitialLocation[0],
-                  AppConstants.kInitialLocation[1]),
-              zoom: 11.0,
+                      : AppConstants.mapBoxDarkStyleId,
+              accessToken: AppConstants.mapBoxAccessToken,
+              onMapCreated: _onMapboxMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(AppConstants.kInitialLocation[0],
+                    AppConstants.kInitialLocation[1]),
+                zoom: 11.0,
+              ),
+              onStyleLoadedCallback: _onStyleLoadedCallback,
+              trackCameraPosition: true,
+              myLocationEnabled: _myLocationEnabled,
+              myLocationTrackingMode: MyLocationTrackingMode.None,
             ),
-            onStyleLoadedCallback: _onStyleLoadedCallback,
-            trackCameraPosition: true,
-            myLocationEnabled: _myLocationEnabled,
-            myLocationTrackingMode: MyLocationTrackingMode.None,
           ),
-        ),
-        _isHereMapOn
-            ? SizedBox(
-                height: screenHeight,
-                width: screenWidth,
-                child: HereMap(
-                  onMapCreated: _onHereMapCreated,
-                ),
-              )
-            : Container(),
-        PositionedDirectional(
-          bottom: 20,
-          end: 20,
-          child: MyLocationButton(
-            onResult: (isLocationEnabled, locationValue) {
-              setState(() {
-                _myLocationEnabled = isLocationEnabled;
-                if (isLocationEnabled) {
-                  _mapboxToMyLocation(locationValue!);
-                  if (_isHereMapOn) {
-                    _flyTo(GeoCoordinates(
-                      locationValue.latitude!,
-                      locationValue.longitude!,
-                    ));
+          _isHereMapOn
+              ? SizedBox(
+                  height: screenHeight,
+                  width: screenWidth,
+                  child: HereMap(
+                    onMapCreated: _onHereMapCreated,
+                  ),
+                )
+              : Container(),
+          PositionedDirectional(
+            bottom: 20,
+            end: 20,
+            child: MyLocationButton(
+              onResult: (isLocationEnabled, locationValue) {
+                setState(() {
+                  _myLocationEnabled = isLocationEnabled;
+                  if (isLocationEnabled) {
+                    _mapboxToMyLocation(locationValue!);
+                    if (_isHereMapOn) {
+                      _flyTo(GeoCoordinates(
+                        locationValue.latitude!,
+                        locationValue.longitude!,
+                      ));
+                    }
                   }
-                }
-              });
-            },
+                });
+              },
+            ),
           ),
-        ),
-        _isEverythingIsReady ? Container() : const SplashScreen(),
-      ]),
+          _isEverythingIsReady ? Container() : const SplashScreen(),
+        ]);
+      }),
+      floatingActionButton: _isEverythingIsReady
+          ? FabCircularMenu(
+              alignment: Alignment.bottomLeft,
+              fabColor: Theme.of(context).primaryColor.withOpacity(0.5),
+              fabOpenColor:
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+              ringDiameter: 250.0,
+              ringWidth: 60.0,
+              ringColor:
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+              fabSize: 60.0,
+              children: [
+                  IconButton(
+                      onPressed: () {
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.navigation)),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _isSatellite = !_isSatellite;
+                      });
+                    },
+                    icon: const Icon(Icons.layers),
+                  ),
+                ])
+          : null,
     );
   }
 
@@ -107,8 +142,10 @@ class _HereHomeState extends State<HereHome> {
     _mapController = controller;
   }
 
-  _onStyleLoadedCallback() {
-    addImageFromAsset("sarrafakLogo", "assets/icons/sarrafak_432x432.png");
+  _onStyleLoadedCallback() async {
+    await addImageFromAsset(
+        "sarrafakLogo", "assets/icons/sarrafak_432x432.png");
+    await _addAll();
     setState(() {
       _isMapboxMapIsReady = true;
       _isEverythingIsReady = _isHereMapIsReady;
@@ -204,5 +241,41 @@ class _HereHomeState extends State<HereHome> {
     // Free HERE SDK resources before the application shuts down.
     await SDKNativeEngine.sharedInstance?.dispose();
     SdkContext.release();
+  }
+
+  SymbolOptions _getSymbolOptions(ATM atm) {
+    LatLng geometry = LatLng(
+      atm.latitude,
+      atm.longitude,
+    );
+    return SymbolOptions(
+      geometry: geometry,
+      iconImage: 'sarrafakLogo',
+      iconSize: 0.1,
+      iconAnchor: 'bottom',
+      fontNames: ['DIN Offc Pro Bold', 'Arial Unicode MS Regular'],
+      textField: atm.name,
+      textSize: 12.5,
+      textOffset: const Offset(0, 0.8),
+      textAnchor: 'top',
+      textColor: '#000000',
+      textHaloBlur: 1,
+      textHaloColor: '#ffffff',
+      textHaloWidth: 0.8,
+    );
+  }
+
+  Future<void> _addAll() async {
+    List<ATM> symbolsToAdd = atms;
+    for (var s in _mapController!.symbols) {
+      symbolsToAdd.removeWhere((i) => i.id == s.data!['id']);
+    }
+
+    if (symbolsToAdd.isNotEmpty) {
+      final List<SymbolOptions> symbolOptionsList =
+          symbolsToAdd.map((i) => _getSymbolOptions(i)).toList();
+      _mapController!.addSymbols(
+          symbolOptionsList, symbolsToAdd.map((i) => {'id': i.id}).toList());
+    }
   }
 }
