@@ -45,6 +45,7 @@ dependencies:
   #flutter_map: ^3.0.0
   #flutter_map_location_marker: ^5.0.0+1
   fab_circular_menu:
+  flip_card:
   circular_reveal_animation:
   flutter_native_splash: ^2.2.13
   #flutter_launcher_icons: ^0.10.0
@@ -196,7 +197,7 @@ flutter_native_splash:
   # parameters from above.
   #image_dark: assets/android12splash-invert.png
   #color_dark: "#042a49"
-  #icon_background_color_dark: "#eeeeee"
+  icon_background_color_dark: "#e2840a"
 
   # The android, ios and web parameters can be used to disable generating a splash screen on a given
   # platform.

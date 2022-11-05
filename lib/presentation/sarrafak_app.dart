@@ -27,7 +27,11 @@ class SarrafakAppView extends StatelessWidget {
       builder: (context, state) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.light(),
+          theme: ThemeData(
+            brightness: Brightness.light,
+            useMaterial3: true,
+            colorSchemeSeed: const Color(0xffe2840a),
+          ),
           darkTheme: ThemeData.dark(),
           /*themeMode: state.mode == ThemingMode.light
               ? ThemeMode.light
