@@ -56,7 +56,6 @@ class _HereHomeState extends State<HereHome> {
   int prevPage = 0;
   bool isReviews = false;
   bool isPhotos = true;
-  bool _isCardTapped = false;
   bool _isPressedATM = false;
 
   @override
@@ -69,9 +68,18 @@ class _HereHomeState extends State<HereHome> {
   void _onScroll() {
     if (_pageController.page!.toInt() != prevPage) {
       prevPage = _pageController.page!.toInt();
-      _isCardTapped = false;
-      goToTappedPlace();
+      _isPressedATM = false;
+      goToTappedATM();
     }
+  }
+
+  Future<void> goToTappedATM() async {
+    var atm = atms[_pageController.page?.toInt() ?? 0];
+    _selectedSymbol = _mapController?.symbols
+        .firstWhere((element) => element.data!['id'] == atm.id);
+    _mapController?.onSymbolTapped(_selectedSymbol!);
+
+    _animateMapboxCamera(atm.latitude, atm.longitude);
   }
 
   @override
@@ -140,13 +148,13 @@ class _HereHomeState extends State<HereHome> {
                     width: MediaQuery.of(context).size.width,
                     child: PageView.builder(
                         controller: _pageController,
-                        itemCount: allFavoritePlaces.length,
+                        itemCount: atms.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return _nearbyPlacesList(index);
+                          return _nearbyATMsList(index);
                         }),
                   ))
               : Container(),
-          _isCardTapped
+          _isPressedATM
               ? Positioned(
                   top: 100.0,
                   left: 15.0,
@@ -360,7 +368,7 @@ class _HereHomeState extends State<HereHome> {
     );
   }
 
-  _nearbyATMList(index) {
+  _nearbyATMsList(index) {
     return AnimatedBuilder(
       animation: _pageController,
       builder: (BuildContext context, Widget? widget) {
@@ -379,19 +387,21 @@ class _HereHomeState extends State<HereHome> {
       },
       child: InkWell(
         onTap: () async {
-          cardTapped = !cardTapped;
-          if (cardTapped) {
-            tappedPlaceDetail = await MapServices()
-                .getPlace(allFavoritePlaces[index]['place_id']);
+          _isPressedATM = !_isPressedATM;
+          if (_isPressedATM) {
+            var atm = atms[index];
+            _selectedSymbol = _mapController?.symbols
+                .firstWhere((element) => element.data!['id'] == atm.id);
+            _mapController?.onSymbolTapped(_selectedSymbol!);
             setState(() {});
           }
-          moveCameraSlightly();
+          //moveCameraSlightly();
         },
         child: Stack(
           children: [
             Center(
               child: Container(
-                margin: EdgeInsets.symmetric(
+                margin: const EdgeInsets.symmetric(
                   horizontal: 10.0,
                   vertical: 20.0,
                 ),
@@ -399,7 +409,7 @@ class _HereHomeState extends State<HereHome> {
                 width: 275.0,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                           color: Colors.black54,
                           offset: Offset(0.0, 4.0),
@@ -416,21 +426,20 @@ class _HereHomeState extends State<HereHome> {
                               ? Container(
                                   height: 90.0,
                                   width: 90.0,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(10.0),
                                         topLeft: Radius.circular(10.0),
                                       ),
                                       image: DecorationImage(
-                                          image: NetworkImage(placeImg != ''
-                                              ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
-                                              : 'https://pic.onlinewebfonts.com/svg/img_546302.png'),
+                                          image: NetworkImage(
+                                              'https://pic.onlinewebfonts.com/svg/img_546302.png'),
                                           fit: BoxFit.cover)),
                                 )
                               : Container(
                                   height: 90.0,
                                   width: 20.0,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(10.0),
                                         topLeft: Radius.circular(10.0),
@@ -445,13 +454,13 @@ class _HereHomeState extends State<HereHome> {
                         children: [
                           Container(
                             width: 170.0,
-                            child: Text(allFavoritePlaces[index]['name'],
-                                style: TextStyle(
+                            child: Text(atms[index].name,
+                                style: const TextStyle(
                                     fontSize: 12.5,
                                     fontFamily: 'WorkSans',
                                     fontWeight: FontWeight.bold)),
                           ),
-                          RatingStars(
+                          /*RatingStars(
                             value: allFavoritePlaces[index]['rating']
                                         .runtimeType ==
                                     int
@@ -477,18 +486,13 @@ class _HereHomeState extends State<HereHome> {
                             valueLabelMargin: const EdgeInsets.only(right: 8),
                             starOffColor: const Color(0xffe7e8ea),
                             starColor: Colors.yellow,
-                          ),
+                          ),*/
                           Container(
                             width: 170.0,
                             child: Text(
-                              allFavoritePlaces[index]['business_status'] ??
-                                  'none',
-                              style: TextStyle(
-                                  color: allFavoritePlaces[index]
-                                              ['business_status'] ==
-                                          'OPERATIONAL'
-                                      ? Colors.green
-                                      : Colors.red,
+                              atms[index].address ?? 'none',
+                              style: const TextStyle(
+                                  color: Colors.green,
                                   fontSize: 11.0,
                                   fontWeight: FontWeight.w700),
                             ),
@@ -615,21 +619,25 @@ class _HereHomeState extends State<HereHome> {
   }
 
   void _mapboxToMyLocation(LocationData value) {
-    _mapController
-        ?.animateCamera(
+    _animateMapboxCamera(
+      value.latitude ?? AppConstants.kInitialLocation[0],
+      value.longitude ?? AppConstants.kInitialLocation[1],
+    )?.then((result) {
+      print("mapController.animateCamera() returned $result");
+    });
+  }
+
+  Future<bool?>? _animateMapboxCamera(double lat, double long) {
+    return _mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           bearing: 0,
-          target: LatLng(value.latitude ?? AppConstants.kInitialLocation[0],
-              value.longitude ?? AppConstants.kInitialLocation[1]),
+          target: LatLng(lat, long),
           tilt: 30.0,
           zoom: 15.0,
         ),
       ),
-    )
-        .then((result) {
-      print("mapController.animateCamera() returned $result");
-    });
+    );
   }
 
   void _disposeHERESDK() async {
