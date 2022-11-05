@@ -75,9 +75,12 @@ class _HereHomeState extends State<HereHome> {
 
   Future<void> goToTappedATM() async {
     var atm = atms[_pageController.page?.toInt() ?? 0];
-    _selectedSymbol = _mapController?.symbols
-        .firstWhere((element) => element.data!['id'] == atm.id);
-    _mapController?.onSymbolTapped(_selectedSymbol!);
+    Symbol? selectedSymbol;
+    setState(() {
+      selectedSymbol = _mapController?.symbols
+          .firstWhere((element) => element.data!['id'] == atm.id);
+    });
+    _onSymbolTapped(selectedSymbol!);
 
     _animateMapboxCamera(atm.latitude, atm.longitude);
   }
@@ -120,26 +123,6 @@ class _HereHomeState extends State<HereHome> {
                   ),
                 )
               : Container(),
-          PositionedDirectional(
-            bottom: 20,
-            end: 20,
-            child: MyLocationButton(
-              onResult: (isLocationEnabled, locationValue) {
-                setState(() {
-                  _myLocationEnabled = isLocationEnabled;
-                  if (isLocationEnabled) {
-                    _mapboxToMyLocation(locationValue!);
-                    if (_isHereMapOn) {
-                      _flyTo(GeoCoordinates(
-                        locationValue.latitude!,
-                        locationValue.longitude!,
-                      ));
-                    }
-                  }
-                });
-              },
-            ),
-          ),
           _isPressedATM
               ? Positioned(
                   bottom: 20.0,
@@ -335,6 +318,26 @@ class _HereHomeState extends State<HereHome> {
                     ),
                   ))
               : Container(),
+          PositionedDirectional(
+            bottom: 20,
+            end: 20,
+            child: MyLocationButton(
+              onResult: (isLocationEnabled, locationValue) {
+                setState(() {
+                  _myLocationEnabled = isLocationEnabled;
+                  if (isLocationEnabled) {
+                    _mapboxToMyLocation(locationValue!);
+                    if (_isHereMapOn) {
+                      _flyTo(GeoCoordinates(
+                        locationValue.latitude!,
+                        locationValue.longitude!,
+                      ));
+                    }
+                  }
+                });
+              },
+            ),
+          ),
           _isEverythingIsReady ? Container() : const SplashScreen(),
         ]);
       }),
