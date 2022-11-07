@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sarrafak/presentation/ui/screens/here_home.dart';
+import 'package:sarrafak/presentation/ui/screens/home.dart';
 
 import 'bloc/theme_bloc.dart';
 
@@ -32,11 +32,15 @@ class SarrafakAppView extends StatelessWidget {
             useMaterial3: true,
             colorSchemeSeed: const Color(0xffe2840a),
           ),
-          darkTheme: ThemeData.dark(),
-          /*themeMode: state.mode == ThemingMode.light
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            useMaterial3: true,
+            colorSchemeSeed: const Color(0xffecb46b),
+          ),
+          themeMode: state.mode == ThemingMode.light
               ? ThemeMode.light
-              : ThemeMode.dark,*/
-          home: const HereHome(),
+              : ThemeMode.dark,
+          home: const Home(),
         );
       },
     );
