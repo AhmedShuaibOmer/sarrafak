@@ -71,7 +71,7 @@ class HereMapService {
               break;
             case AnimationState.completed:
               {
-                onAnimCompleted;
+                onAnimCompleted();
                 //_disposeHERESDK();
                 break;
               }

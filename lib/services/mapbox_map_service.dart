@@ -19,16 +19,16 @@ class MapboxMapService {
     });
   }
 
-  void onStyleLoaded({
-    required List<Map<String, Object>> symbolsToAdd,
-    required Null Function() onLoaded,
+  Future<void> onStyleLoaded({
+    required Function() onLoaded,
   }) async {
     await _addImageFromAsset(
         "sarrafakLogo", "assets/icons/sarrafak_432x432.png");
-    await _addAllSymbols(symbolsToAdd);
+    print('Mapbox added image asset------------------------------------------');
+
     await _mapboxMapController.setSymbolIconAllowOverlap(true);
     await _mapboxMapController.setSymbolTextAllowOverlap(true);
-    onLoaded;
+    onLoaded();
   }
 
   Future<void> selectSymbol(String id) async {
@@ -62,7 +62,7 @@ class MapboxMapService {
     return _mapboxMapController!.addImage(name, list);
   }
 
-  Future<void> _addAllSymbols(List<Map<String, Object>> symbolsToAdd) async {
+  Future<void> addAllSymbols(List<Map<String, Object>> symbolsToAdd) async {
     for (var s in _mapboxMapController.symbols) {
       symbolsToAdd.removeWhere((i) => i['id'] == s.data!['id']);
     }
@@ -119,6 +119,11 @@ class MapboxMapService {
       _updateSelectedSymbol(
         const SymbolOptions(iconSize: 0.2),
       );
+      if (_selectedSymbol?.data!['id'] == symbol.data!['id']) {
+        _selectedSymbol = null;
+        onTapped('-1');
+        return;
+      }
     }
     _selectedSymbol = symbol;
     onTapped(symbol.data!['id']);

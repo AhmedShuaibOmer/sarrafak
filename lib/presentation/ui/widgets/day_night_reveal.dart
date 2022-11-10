@@ -96,7 +96,7 @@ class _DayNightRevealState extends State<DayNightReveal>
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30)),
                   shape: BoxShape.rectangle,
-                  color: Theme.of(context).hoverColor,
+                  color: Theme.of(context).primaryColor.withOpacity(0.5),
                 ),
                 child: Padding(
                   padding:

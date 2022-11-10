@@ -8,13 +8,15 @@ class ATM extends Equatable {
   final String? website;
   final double latitude;
   final double longitude;
+  final int rating;
 
-  ATM({
+  const ATM({
     required this.id,
     required this.name,
     required this.address,
     this.phoneNumber,
     this.website,
+    this.rating = 0,
     required this.latitude,
     required this.longitude,
   });

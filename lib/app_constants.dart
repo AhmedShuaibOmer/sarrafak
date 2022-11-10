@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'data/models/atm.dart';
 
 class AppConstants {
@@ -10,6 +12,8 @@ class AppConstants {
       'ekFeQZfZK1p61Chy_-fxkcEl8gwT2t1MtHbMCVowRK-RFWEkWRgZpxBfC-dFfl30P7djhabIGuojCvR_NdpX1A';
 
   static final kInitialLocation = <double>[15.508457, 32.522854];
+
+  static const kMainColor = Color(0xffe2840a);
 }
 
 final List<ATM> atms = [
@@ -21,6 +25,7 @@ final List<ATM> atms = [
     longitude: 32.6260307,
     phoneNumber: '0156661000',
     website: 'http://bankofkhartoum.com/',
+    rating: 4,
   ),
   ATM(
     id: '2',
@@ -28,15 +33,18 @@ final List<ATM> atms = [
     address: 'JG29+PRV, Saleh Pasha El Mek St, الخرطوم، السودان',
     latitude: 15.5811562,
     longitude: 32.5519628,
+    rating: 3,
   ),
   ATM(
-      id: '3',
-      name: 'صراف آلي بنك الخرطوم',
-      address: 'JFCH+MMG، أم درمان، السودان Mek St, الخرطوم، السودان',
-      latitude: 15.6290897,
-      longitude: 32.5064747,
-      phoneNumber: '0156661000',
-      website: 'http://www.bankofkhartoum.com/'),
+    id: '3',
+    name: 'صراف آلي بنك الخرطوم',
+    address: 'JFCH+MMG، أم درمان، السودان Mek St, الخرطوم، السودان',
+    latitude: 15.6290897,
+    longitude: 32.5064747,
+    phoneNumber: '0156661000',
+    website: 'http://www.bankofkhartoum.com/',
+    rating: 3,
+  ),
   ATM(
     id: '4',
     name: 'صرافة بنك الخرطوم',
@@ -44,6 +52,7 @@ final List<ATM> atms = [
     latitude: 15.6469964,
     longitude: 32.4334806,
     phoneNumber: '0114674550',
+    rating: 2,
   ),
   ATM(
     id: '5',
@@ -51,6 +60,7 @@ final List<ATM> atms = [
     address: 'MFCG+JW8، أم درمان، السودان',
     latitude: 15.6715316,
     longitude: 32.5705676,
+    rating: 5,
   ),
   ATM(
     id: '6',
@@ -58,6 +68,7 @@ final List<ATM> atms = [
     address: 'JG46+M8R، الخرطوم، السودان',
     latitude: 15.5827217,
     longitude: 32.5856053,
+    rating: 4,
   ),
   ATM(
     id: '7',
@@ -66,6 +77,7 @@ final List<ATM> atms = [
     latitude: 15.5880005,
     longitude: 32.5678068,
     phoneNumber: '0183737000',
+    rating: 2,
   ),
   ATM(
     id: '8',
@@ -75,6 +87,7 @@ final List<ATM> atms = [
     longitude: 32.6702929,
     phoneNumber: '0156661000',
     website: 'http://www.bankofkhartoum.com/',
+    rating: 1,
   ),
   ATM(
     id: '9',
@@ -83,6 +96,7 @@ final List<ATM> atms = [
     latitude: 15.6210943,
     longitude: 32.6702929,
     phoneNumber: '0183770400',
+    rating: 4,
   ),
   ATM(
     id: '10',
@@ -91,6 +105,7 @@ final List<ATM> atms = [
         'JGPJ+5HP، الختمية، الخرطوم بحري،، الخرطوم بحري،، الخرطوم بحري،، الخرطوم بحري، السودان',
     latitude: 15.6312738,
     longitude: 32.5592396,
+    rating: 3,
   ),
   ATM(
     id: '11',
@@ -100,6 +115,7 @@ final List<ATM> atms = [
     longitude: 32.5500493,
     phoneNumber: '0156661000',
     website: 'http://www.bankofkhartoum.com/',
+    rating: 2,
   ),
   ATM(
     id: '12',
@@ -115,6 +131,7 @@ final List<ATM> atms = [
       latitude: 15.6337319,
       longitude: 32.5401363,
       phoneNumber: '0156661000',
+      rating: 4,
       website: 'http://www.bankofkhartoum.com/'),
   ATM(
     id: '14',
@@ -122,6 +139,7 @@ final List<ATM> atms = [
     address: 'JHM4+9F7، الخرطوم بحري، السودان',
     latitude: 15.6339587,
     longitude: 32.5738708,
+    rating: 3,
   ),
   ATM(
     id: '15',
@@ -131,6 +149,7 @@ final List<ATM> atms = [
     longitude: 32.5738708,
     phoneNumber: '0156661000',
     website: ' http://bankofkhartoum.com/',
+    rating: 1,
   ),
   ATM(
     id: '16',
@@ -138,6 +157,7 @@ final List<ATM> atms = [
     address: 'JHX3+VX9، الخرطوم بحري، السودان',
     latitude: 15.6339587,
     longitude: 32.5851583,
+    rating: 5,
   ),
   ATM(
     id: '17',
@@ -146,6 +166,7 @@ final List<ATM> atms = [
     latitude: 15.624667,
     longitude: 32.633458,
     phoneNumber: '0183770400',
+    rating: 2,
   ),
   ATM(
     id: '18',
@@ -154,6 +175,7 @@ final List<ATM> atms = [
     latitude: 15.5975081,
     longitude: 32.5796399,
     phoneNumber: '0183771730',
+    rating: 1,
   ),
   ATM(
     id: '19',
@@ -162,6 +184,7 @@ final List<ATM> atms = [
     latitude: 15.530263,
     longitude: 32.5796399,
     phoneNumber: '0156661000',
+    rating: 4,
     website: 'http://www.bankofkhartoum.com/',
   ),
 /*  ATM(

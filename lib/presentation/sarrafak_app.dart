@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sarrafak/app_constants.dart';
 import 'package:sarrafak/presentation/ui/screens/home.dart';
 
+import '../services/here_map_service.dart';
 import 'bloc/theme_bloc.dart';
 
 class SarrafakApp extends StatelessWidget {
@@ -16,10 +18,27 @@ class SarrafakApp extends StatelessWidget {
   }
 }
 
-class SarrafakAppView extends StatelessWidget {
+class SarrafakAppView extends StatefulWidget {
   const SarrafakAppView({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<SarrafakAppView> createState() => _SarrafakAppViewState();
+}
+
+class _SarrafakAppViewState extends State<SarrafakAppView> {
+  @override
+  void initState() {
+    HereMapService.initializeHERESDK();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    HereMapService.disposeHERESDK();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +49,7 @@ class SarrafakAppView extends StatelessWidget {
           theme: ThemeData(
             brightness: Brightness.light,
             useMaterial3: true,
-            colorSchemeSeed: const Color(0xffe2840a),
+            colorSchemeSeed: AppConstants.kMainColor,
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
