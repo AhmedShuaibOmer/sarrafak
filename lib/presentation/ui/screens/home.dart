@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:here_sdk/core.dart';
 import 'package:here_sdk/mapview.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:sarrafak/presentation/ui/screens/splash_screen.dart';
 import 'package:sarrafak/presentation/ui/widgets/atm_details_card.dart';
@@ -15,7 +16,6 @@ import '../../bloc/theme_bloc.dart';
 import '../widgets/atms_list.dart';
 import '../widgets/my_location.dart';
 import '../widgets/search_atms_button.dart';
-import 'navigation.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -116,11 +116,12 @@ class _HomeViewState extends State<HomeView> {
                   });
                   await _mapboxMapService?.selectSymbol(atm.id);
                 },
-                onDirectionsPressed: (atm) {
-                  Navigator.of(context).push(MaterialPageRoute<void>(
+                onDirectionsPressed: _navigateToATM
+                /*Navigator.of(context).push(MaterialPageRoute<void>(
                     builder: (_) => Navigation(),
-                  ));
-                },
+                  ));*/
+
+                ,
                 onInfoPressed: (atm) {
                   setState(() {
                     _selectedATM = atm;
@@ -213,8 +214,11 @@ class _HomeViewState extends State<HomeView> {
               end: _isShowDirectionsFab ? screenWidth - 76 : screenWidth,
               bottom: 96,
               child: FloatingActionButton(
+                heroTag: "btn4",
                 backgroundColor: Theme.of(context).primaryColor,
-                onPressed: () {},
+                onPressed: () {
+                  _navigateToATM(_selectedATM!);
+                },
                 child: Icon(
                   Icons.directions_outlined,
                   color: Theme.of(context).colorScheme.onPrimary,
@@ -235,6 +239,7 @@ class _HomeViewState extends State<HomeView> {
                           : 96,
               start: 20,
               child: FloatingActionButton.small(
+                heroTag: "btn5",
                 onPressed: () {
                   setState(() {
                     _isSatellite = !_isSatellite;
@@ -257,6 +262,7 @@ class _HomeViewState extends State<HomeView> {
                           : 154,
               end: _isSatellite ? screenWidth : screenWidth - 68,
               child: FloatingActionButton.small(
+                heroTag: "btn6",
                 onPressed: () {
                   context.read<ThemeBloc>().add(const AddToggleTheme());
                 },
@@ -319,6 +325,18 @@ class _HomeViewState extends State<HomeView> {
         _isShowDirectionsFab = false;
       });
       _selectedATM = null;
+    }
+  }
+
+  _navigateToATM(ATM atm) async {
+    bool isAvailable =
+        await MapLauncher.isMapAvailable(MapType.google) ?? false;
+    if (isAvailable) {
+      await MapLauncher.showDirections(
+        mapType: MapType.google,
+        destinationTitle: atm.name,
+        destination: Coords(atm.latitude, atm.longitude),
+      );
     }
   }
 }

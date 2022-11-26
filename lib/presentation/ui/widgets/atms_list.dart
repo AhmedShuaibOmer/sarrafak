@@ -172,6 +172,7 @@ class _ATMsListState extends State<ATMsList> {
                       child: Row(
                         children: [
                           FloatingActionButton(
+                            heroTag: "btn1",
                             onPressed: () {
                               widget.onInfoPressed(atm);
                             },

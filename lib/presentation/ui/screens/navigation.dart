@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mapbox_nav/flutter_mapbox_nav.dart';
+import 'package:mapbox_api/mapbox_api.dart';
+import 'package:sarrafak/app_constants.dart';
 
 import '../../../helpers/page.dart';
 
@@ -46,17 +48,8 @@ class NavigationState extends State<Navigation> {
       latitude: 38.90894949285854,
       longitude: -77.03651905059814);
 
-  final _home = WayPoint(
-      name: "Home",
-      latitude: 15.486652,
-      longitude: 32.542335);
-
-  final _store = WayPoint(
-      name: "Store",
-      latitude:  15.5108627,
-      longitude: 32.5794388);
   MapBoxNavigation? _directions;
-  MapBoxOptions? _options;
+  late MapBoxOptions _options;
 
   bool _isMultipleStop = false;
   double? _distanceRemaining, _durationRemaining;
@@ -79,9 +72,9 @@ class NavigationState extends State<Navigation> {
 
     _directions = MapBoxNavigation(onRouteEvent: _onEmbeddedRouteEvent);
     _options = MapBoxOptions(
-        //initialLatitude: 36.1175275,
-        //initialLongitude: -115.1839524,
-        zoom: 15.0,
+        initialLatitude: 36.1175275,
+        initialLongitude: -115.1839524,
+        zoom: 13.0,
         tilt: 0.0,
         bearing: 0.0,
         enableRefresh: false,
@@ -92,8 +85,6 @@ class NavigationState extends State<Navigation> {
         mode: MapBoxNavigationMode.drivingWithTraffic,
         units: VoiceUnits.imperial,
         simulateRoute: true,
-        animateBuildRoute: true,
-        longPressDestinationEnabled: true,
         language: "en");
 
     String? platformVersion;
@@ -109,6 +100,38 @@ class NavigationState extends State<Navigation> {
     });
   }
 
+  Future<DirectionsApiResponse> re() async {
+    MapboxApi mapbox = MapboxApi(
+      accessToken: AppConstants.kMapboxMapAccessToken,
+    );
+    final _home =
+        WayPoint(name: "Home", latitude: 15.486652, longitude: 32.542335);
+
+    final _store =
+        WayPoint(name: "Store", latitude: 15.5108627, longitude: 32.5794388);
+    return await mapbox.directions.request(
+      profile: NavigationProfile.DRIVING_TRAFFIC,
+      overview: NavigationOverview.FULL,
+      geometries: NavigationGeometries.GEOJSON,
+      steps: true,
+      coordinates: <List<double>>[
+        <double>[
+          15.486652, // latitude
+          32.542335, // longitude
+        ],
+        <double>[
+          15.5108627, // latitude
+          32.5794388, // longitude
+        ],
+      ],
+    );
+
+    /*if (response.error == null) {
+      // response.routes ...
+      // response.waypoints ...
+    }*/
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -116,7 +139,27 @@ class NavigationState extends State<Navigation> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
+        body: FutureBuilder<DirectionsApiResponse>(
+          future: re(),
+          builder: (ctx, snapshot) {
+            var wayPoints = <WayPoint>[];
+            wayPoints.addAll(snapshot.data?.waypoints
+                    ?.map((e) => WayPoint(
+                        name: e.name,
+                        latitude: e.location![0],
+                        longitude: e.location![1]))
+                    .toList() ??
+                []);
+            wayPoints.forEach((element) {
+              print(element.longitude);
+            });
+
+            return FloatingActionButton(onPressed: () async {
+              await _directions?.startNavigation(
+                  wayPoints: wayPoints, options: _options);
+            });
+          },
+        ), /*Center(
           child: Column(children: <Widget>[
             Expanded(
               child: SingleChildScrollView(
@@ -312,7 +355,7 @@ class NavigationState extends State<Navigation> {
               ),
             )
           ]),
-        ),
+        ),*/
       ),
     );
   }

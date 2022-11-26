@@ -43,6 +43,7 @@ class _MyLocationButtonState extends State<MyLocationButton>
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "btn2",
       onPressed: _getUserLocation,
       child: _isLoadingLocation
           ? RotationTransition(

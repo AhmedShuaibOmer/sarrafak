@@ -24,6 +24,7 @@ class _SearchATMsButtonState extends State<SearchATMsButton> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "btn3",
       onPressed: () async {
         if (!_isLoading) {
           if (_isLoaded) {
